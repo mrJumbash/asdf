@@ -1,0 +1,29 @@
+version: "3"
+services:
+  database_service:
+    image: "postgres:15"
+    hostname: stylescopedb_host
+    environment:
+      - POSTGRES_DB=stylescopedb
+      - POSTGRES_USER=ss_admin
+      - POSTGRES_PASSWORD=ss12345
+    ports:
+      - "5433:5432"
+    volumes:
+      - dist-postgres-database:/var/lib/postgresql/data
+
+  ss_docker:
+    build:
+      context: .
+    env_file:
+      - .env
+    command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database_service
+    volumes:
+      - ./static:/ss/static
+      - ./media:/ss/media
+volumes:
+  dist-postgres-database:
